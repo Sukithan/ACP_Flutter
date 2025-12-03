@@ -23,6 +23,11 @@ class Task extends Model
 
     // Since we're storing actual data in Firestore, this model is mainly for Laravel policies
     
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_firestore_id', 'firestore_id');
+    }
+    
     public function assignedUser()
     {
         return $this->belongsTo(User::class, 'assigned_to');

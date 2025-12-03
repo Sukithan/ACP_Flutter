@@ -37,14 +37,36 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final projects = (data['projects'] as List)
-            .map((json) => Project.fromJson(json))
-            .toList();
+
+        // Check for error in response even if status is 200
+        if (data.containsKey('error')) {
+          throw Exception('Server error: ${data['error']}');
+        }
+
+        if (!data.containsKey('projects')) {
+          throw Exception('Invalid response format: missing projects field');
+        }
+
+        final projectsList = data['projects'] as List;
+        final projects = projectsList.map((projectJson) {
+          try {
+            return Project.fromJson(projectJson as Map<String, dynamic>);
+          } catch (e) {
+            print('Error parsing project: $projectJson');
+            print('Parse error: $e');
+            rethrow;
+          }
+        }).toList();
+
         return projects;
       } else {
-        throw Exception('Failed to load projects: ${response.statusCode}');
+        final errorMessage = 'Failed to load projects: ${response.statusCode}';
+        print('HTTP Error: $errorMessage');
+        print('Response body: ${response.body}');
+        throw Exception(errorMessage);
       }
     } catch (e) {
+      print('Error fetching projects: $e');
       throw Exception('Error fetching projects: $e');
     }
   }
@@ -250,6 +272,217 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error deleting task: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getTask(String projectId, String taskId) async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/projects/$projectId/tasks/$taskId'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['task'];
+      } else {
+        throw Exception('Failed to load task');
+      }
+    } catch (e) {
+      throw Exception('Error fetching task: $e');
+    }
+  }
+
+  // Dashboard and Stats
+  Future<Map<String, dynamic>> getDashboardStats() async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/dashboard/stats'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        // Check if there's an error in the response
+        if (data.containsKey('error')) {
+          return {
+            'has_error': true,
+            'error_message': data['error'],
+            ...data, // Include the existing stats even if there's an error
+          };
+        }
+        return data;
+      } else {
+        throw Exception(
+          'Failed to load dashboard stats: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error fetching dashboard stats: $e');
+    }
+  }
+
+  // User Management (Admin only)
+  Future<List<Map<String, dynamic>>> getUsers() async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/admin/users'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data.containsKey('error')) {
+          throw Exception(data['error']);
+        }
+        return List<Map<String, dynamic>>.from(data['users'] ?? []);
+      } else if (response.statusCode == 500) {
+        final errorData = json.decode(response.body);
+        throw Exception(errorData['error'] ?? 'Server error occurred');
+      } else {
+        throw Exception('Failed to load users: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching users: $e');
+    }
+  }
+
+  Future<void> updateUserRole(int userId, String role) async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.put(
+        Uri.parse('$baseUrl/admin/users/$userId/role'),
+        headers: headers,
+        body: json.encode({'role': role}),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update user role');
+      }
+    } catch (e) {
+      throw Exception('Error updating user role: $e');
+    }
+  }
+
+  Future<void> deleteUser(int userId) async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.delete(
+        Uri.parse('$baseUrl/admin/users/$userId'),
+        headers: headers,
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to delete user');
+      }
+    } catch (e) {
+      throw Exception('Error deleting user: $e');
+    }
+  }
+
+  // System Health (Admin only)
+  Future<Map<String, dynamic>> getSystemHealth() async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/admin/health'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to load system health');
+      }
+    } catch (e) {
+      throw Exception('Error fetching system health: $e');
+    }
+  }
+
+  // System Logs (Admin only)
+  Future<List<Map<String, dynamic>>> getSystemLogs() async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/admin/logs'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return List<Map<String, dynamic>>.from(data['logs']);
+      } else {
+        throw Exception('Failed to load logs');
+      }
+    } catch (e) {
+      throw Exception('Error fetching logs: $e');
+    }
+  }
+
+  // Get managers list (for project assignment)
+  Future<List<Map<String, dynamic>>> getManagers() async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/users/managers'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return List<Map<String, dynamic>>.from(data['managers']);
+      } else {
+        throw Exception('Failed to load managers');
+      }
+    } catch (e) {
+      throw Exception('Error fetching managers: $e');
+    }
+  }
+
+  // Get employees list (for task assignment)
+  Future<List<Map<String, dynamic>>> getEmployees() async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/users/employees'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data.containsKey('error')) {
+          throw Exception(data['error']);
+        }
+        return List<Map<String, dynamic>>.from(data['employees'] ?? []);
+      } else {
+        throw Exception('Failed to load employees: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching employees: $e');
+    }
+  }
+
+  // Test database connections
+  Future<Map<String, dynamic>> testDatabaseConnections() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/test-connections'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to test connections: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error testing database connections: $e');
     }
   }
 }

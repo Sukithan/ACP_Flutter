@@ -154,10 +154,12 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                           ),
                           TextButton.icon(
                             onPressed: () {
-                              Navigator.of(context).pushNamed(
-                                '/create-task',
-                                arguments: widget.projectId,
-                              );
+                              Navigator.of(context)
+                                  .pushNamed(
+                                    '/create-task',
+                                    arguments: widget.projectId,
+                                  )
+                                  .then((_) => _loadProject());
                             },
                             icon: const Icon(Icons.add),
                             label: const Text('Add Task'),
@@ -271,4 +273,8 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
             ),
     );
   }
+}
+void _logError(String message, dynamic error) {
+  debugPrint('ProjectDetailScreen Error: $message');
+  debugPrint('Error details: $error');
 }

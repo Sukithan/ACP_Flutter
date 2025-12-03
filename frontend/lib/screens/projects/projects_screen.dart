@@ -168,7 +168,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).pushNamed('/create-project');
+          Navigator.of(
+            context,
+          ).pushNamed('/create-project').then((_) => _loadProjects());
         },
         child: const Icon(Icons.add),
       ),

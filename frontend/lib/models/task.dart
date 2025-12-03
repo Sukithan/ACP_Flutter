@@ -25,17 +25,25 @@ class Task {
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-      id: json['id'] ?? '',
-      projectId: json['project_id'] ?? '',
-      title: json['title'] ?? '',
-      description: json['description'] ?? '',
-      assignedTo: json['assigned_to'] ?? 0,
-      assignedToName: json['assigned_to_name'],
-      createdBy: json['created_by'] ?? 0,
-      dueDate: json['due_date'],
-      priority: json['priority'] ?? 'medium',
-      status: json['status'] ?? 'pending',
+      id: json['id']?.toString() ?? '',
+      projectId: json['project_id']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      assignedTo: _parseInt(json['assigned_to']) ?? 0,
+      assignedToName: json['assigned_to_name']?.toString(),
+      createdBy: _parseInt(json['created_by']) ?? 0,
+      dueDate: json['due_date']?.toString(),
+      priority: json['priority']?.toString() ?? 'medium',
+      status: json['status']?.toString() ?? 'pending',
     );
+  }
+
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    if (value is double) return value.toInt();
+    return null;
   }
 
   Map<String, dynamic> toJson() {

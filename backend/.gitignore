@@ -4,6 +4,7 @@
 /public/storage
 /storage/*.key
 /vendor
+/bootstrap/cache/routes-v7.php
 .env
 .env.backup
 .env.production

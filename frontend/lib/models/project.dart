@@ -17,13 +17,21 @@ class Project {
 
   factory Project.fromJson(Map<String, dynamic> json) {
     return Project(
-      id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
-      status: json['status'] ?? 'active',
-      createdBy: json['created_by'] ?? 0,
-      assignedManager: json['assigned_manager'] ?? 0,
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      status: json['status']?.toString() ?? 'active',
+      createdBy: _parseInt(json['created_by']) ?? 0,
+      assignedManager: _parseInt(json['assigned_manager']) ?? 0,
     );
+  }
+
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    if (value is double) return value.toInt();
+    return null;
   }
 
   Map<String, dynamic> toJson() {

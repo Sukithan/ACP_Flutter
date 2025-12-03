@@ -45,7 +45,7 @@ class ProjectController extends Controller
                     
                     foreach ($projectTasks as $taskDoc) {
                         $taskData = $taskDoc->data();
-                        if (isset($taskData['assigned_to']) && $taskData['assigned_to'] == $user->id) {
+                        if (isset($taskData['assigned_to']) && (int)$taskData['assigned_to'] === (int)$user->id) {
                             $hasAssignedTask = true;
                             break;
                         }
@@ -67,10 +67,18 @@ class ProjectController extends Controller
 
             return view('projects.index', compact('projects'));
         } catch (FirebaseException|\Exception $e) {
-            $errorMessage = 'Firebase configuration incomplete. Please follow FIREBASE_SETUP.md to configure Firebase properly.';
+            $errorMessage = 'Firebase connection failed: ' . $e->getMessage();
+            \Log::warning('Project index Firebase error', [
+                'error' => $e->getMessage(),
+                'user_id' => Auth::id()
+            ]);
             
             if (request()->expectsJson()) {
-                return response()->json(['error' => $errorMessage, 'projects' => []], 200);
+                return response()->json([
+                    'error' => $errorMessage, 
+                    'projects' => [],
+                    'firebase_available' => false
+                ], 200);
             }
             return view('projects.index', ['projects' => []])->with('warning', $errorMessage);
         }
@@ -113,8 +121,8 @@ class ProjectController extends Controller
                 'name' => $request->name,
                 'description' => $request->description,
                 'status' => $request->status ?? 'active',
-                'created_by' => Auth::id(),
-                'assigned_manager' => $request->assigned_manager ?? Auth::id(),
+                'created_by' => (int) Auth::id(),
+                'assigned_manager' => (int) ($request->assigned_manager ?? Auth::id()),
             ];
 
             // Store in Firestore
@@ -171,7 +179,7 @@ class ProjectController extends Controller
                 
                 // Filter tasks for employees - only show tasks assigned to them
                 if ($currentUser->hasRole('employee')) {
-                    if (!isset($taskData['assigned_to']) || $taskData['assigned_to'] != $currentUser->id) {
+                    if (!isset($taskData['assigned_to']) || (int)$taskData['assigned_to'] !== (int)$currentUser->id) {
                         continue; // Skip tasks not assigned to this employee
                     }
                 }
@@ -278,7 +286,7 @@ class ProjectController extends Controller
 
             // Only update assigned_manager if user has permission
             if ($request->has('assigned_manager') && Auth::user()->hasRole(['admin', 'manager'])) {
-                $updateData['assigned_manager'] = $request->assigned_manager;
+                $updateData['assigned_manager'] = (int) $request->assigned_manager;
             }
 
             // Update in Firestore

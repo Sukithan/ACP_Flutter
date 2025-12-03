@@ -66,17 +66,18 @@ class FirestoreService
     public function getAllProjects()
     {
         if (!$this->isFirestoreAvailable()) {
-            throw new \Exception('Firestore is not configured. Please check FIREBASE_SETUP.md for setup instructions.');
+            Log::warning('Firestore is not available - returning empty project list');
+            return collect([]); // Return empty collection instead of throwing exception
         }
         
         try {
             return $this->firestore->collection('projects')->documents();
         } catch (FirebaseException $e) {
             Log::error('Failed to fetch projects: ' . $e->getMessage());
-            throw $e;
+            return collect([]); // Return empty collection on error
         } catch (\Exception $e) {
             Log::error('Failed to fetch projects: ' . $e->getMessage());
-            throw new \Exception('Firestore is not configured properly. Please check FIREBASE_SETUP.md for setup instructions.');
+            return collect([]); // Return empty collection on error
         }
     }
 

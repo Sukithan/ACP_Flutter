@@ -131,7 +131,7 @@ class TaskController extends Controller
                 'title' => $request->title,
                 'description' => $request->description,
                 'assigned_to' => (int) $request->assigned_to,
-                'created_by' => Auth::id(),
+                'created_by' => (int) Auth::id(),
                 'due_date' => $request->due_date,
                 'priority' => $request->priority ?? 'medium',
                 'status' => $request->status ?? 'pending',

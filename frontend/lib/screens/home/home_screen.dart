@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../projects/projects_screen.dart';
+import 'dashboard_screen.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
+import '../../models/user.dart';
 import '../../models/task.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,13 +14,74 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final _authService = AuthService();
+  User? _currentUser;
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [const ProjectsScreen(), const TasksTab()];
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final user = await _authService.getCurrentUser();
+    setState(() {
+      _currentUser = user;
+    });
+  }
+
+  final List<Widget> _screens = [
+    const DashboardScreen(),
+    const ProjectsScreen(),
+    const TasksTab(),
+  ];
+
+  Future<void> _handleLogout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _authService.logout();
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/login');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('ACP Project'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {
+              // TODO: Implement notifications
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Notifications coming soon')),
+              );
+            },
+          ),
+        ],
+      ),
+      drawer: _buildDrawer(),
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -26,8 +89,151 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() => _currentIndex = index);
         },
         items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Projects'),
           BottomNavigationBarItem(icon: Icon(Icons.task), label: 'Tasks'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawer() {
+    final isAdmin = _currentUser?.hasRole('admin') ?? false;
+    final isManager = _currentUser?.hasRole('manager') ?? false;
+
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          UserAccountsDrawerHeader(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.deepPurple.shade400,
+                  Colors.deepPurple.shade700,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            accountName: Text(_currentUser?.name ?? 'User'),
+            accountEmail: Text(_currentUser?.email ?? ''),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Text(
+                _currentUser?.name[0].toUpperCase() ?? 'U',
+                style: TextStyle(
+                  fontSize: 32,
+                  color: Colors.deepPurple.shade700,
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.dashboard),
+            title: const Text('Dashboard'),
+            onTap: () {
+              Navigator.pop(context);
+              setState(() => _currentIndex = 0);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.folder),
+            title: const Text('Projects'),
+            onTap: () {
+              Navigator.pop(context);
+              setState(() => _currentIndex = 1);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.task),
+            title: const Text('Tasks'),
+            onTap: () {
+              Navigator.pop(context);
+              setState(() => _currentIndex = 2);
+            },
+          ),
+          const Divider(),
+
+          // Admin Section
+          if (isAdmin) ...[
+            ListTile(
+              leading: const Icon(Icons.admin_panel_settings),
+              title: const Text('Admin Panel'),
+              subtitle: const Text('System management'),
+              tileColor: Colors.red.shade50,
+            ),
+            ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('User Management'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/admin/users');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.health_and_safety),
+              title: const Text('System Health'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/admin/health');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.article),
+              title: const Text('System Logs'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/admin/logs');
+              },
+            ),
+            const Divider(),
+          ],
+
+          // Manager Section
+          if (isManager) ...[
+            ListTile(
+              leading: const Icon(Icons.add_circle),
+              title: const Text('Create Project'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/create-project');
+              },
+            ),
+            const Divider(),
+          ],
+
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Profile'),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: Navigate to profile screen
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Profile screen coming soon')),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings'),
+            onTap: () {
+              Navigator.pop(context);
+              // TODO: Navigate to settings screen
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Settings screen coming soon')),
+              );
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Logout', style: TextStyle(color: Colors.red)),
+            onTap: _handleLogout,
+          ),
         ],
       ),
     );
@@ -115,7 +321,7 @@ class _TasksTabState extends State<TasksTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Tasks'),
+        title: const Text('Tasks'),
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadTasks),
           IconButton(icon: const Icon(Icons.logout), onPressed: _handleLogout),
