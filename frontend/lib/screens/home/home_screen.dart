@@ -212,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         children: [
           Container(
-            height: 280,
+            height: 240,
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -227,49 +227,65 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 20),
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.white,
-                      child: Text(
-                        _currentUser?.name[0].toUpperCase() ?? 'U',
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple.shade700,
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 32,
+                          backgroundColor: Colors.white,
+                          child: Text(
+                            _currentUser?.name[0].toUpperCase() ?? 'U',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple.shade700,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _currentUser?.name ?? 'User',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _currentUser?.email ?? '',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 14,
-                      ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _currentUser?.name ?? 'User',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _currentUser?.email ?? '',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 13,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     if (_currentUser?.roles != null)
                       Wrap(
                         spacing: 6,
+                        runSpacing: 4,
                         children: _currentUser!.roles.map((role) {
                           return Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
-                              vertical: 4,
+                              vertical: 3,
                             ),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.2),
@@ -339,9 +355,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Text(
                       'ADMIN PANEL',
                       style: TextStyle(
-                        color: Colors.grey.shade600,
+                        color: Colors.grey.shade700,
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: 1,
                       ),
                     ),
@@ -405,21 +421,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: 'Profile',
                   onTap: () {
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Row(
-                          children: [
-                            Icon(Icons.info_outline, color: Colors.white),
-                            SizedBox(width: 12),
-                            Text('Profile screen coming soon'),
-                          ],
-                        ),
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    );
+                    Navigator.pushNamed(context, '/profile/edit');
                   },
                 ),
                 _buildDrawerItem(

@@ -9,6 +9,7 @@ import 'screens/tasks/create_task_screen.dart';
 import 'screens/admin/users_screen.dart';
 import 'screens/admin/health_screen.dart';
 import 'screens/admin/logs_screen.dart';
+import 'screens/profile/profile_edit_screen.dart';
 import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
 
@@ -74,6 +75,10 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const HealthScreen());
           case '/admin/logs':
             return MaterialPageRoute(builder: (_) => const LogsScreen());
+
+          // Profile Routes
+          case '/profile/edit':
+            return MaterialPageRoute(builder: (_) => const ProfileEditScreen());
 
           default:
             return MaterialPageRoute(builder: (_) => const LoginScreen());

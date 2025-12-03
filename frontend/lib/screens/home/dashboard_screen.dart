@@ -92,14 +92,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildWelcomeCard(),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Text(
               'Overview',
               style: Theme.of(
                 context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             _buildStatsGrid([
               _StatItem(
                 icon: Icons.people,
@@ -126,16 +126,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 color: Colors.green,
               ),
             ]),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               'System Status',
               style: Theme.of(
                 context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildStatusCards(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             _buildQuickActionsAdmin(),
           ],
         ),
@@ -153,14 +153,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildWelcomeCard(),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Text(
               'My Projects Overview',
               style: Theme.of(
                 context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             _buildStatsGrid([
               _StatItem(
                 icon: Icons.folder,
@@ -187,16 +187,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 color: Colors.blue,
               ),
             ]),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               'Task Progress',
               style: Theme.of(
                 context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildTaskProgressCard(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             _buildQuickActionsManager(),
           ],
         ),
@@ -214,14 +214,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildWelcomeCard(),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Text(
               'Tasks Overview',
               style: Theme.of(
                 context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             _buildStatsGrid([
               _StatItem(
                 icon: Icons.task,
@@ -248,16 +248,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 color: Colors.green,
               ),
             ]),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               'Task Priority Breakdown',
               style: Theme.of(
                 context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _buildPriorityBreakdown(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             _buildQuickActionsEmployee(),
           ],
         ),
@@ -269,7 +269,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Card(
       elevation: 4,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.deepPurple.shade400, Colors.deepPurple.shade700],
@@ -281,18 +281,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Row(
           children: [
             CircleAvatar(
-              radius: 30,
+              radius: 25,
               backgroundColor: Colors.white,
               child: Text(
                 _currentUser?.name[0].toUpperCase() ?? 'U',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.deepPurple.shade700,
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,9 +340,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: 1.4,
+        crossAxisSpacing: 6,
+        mainAxisSpacing: 6,
+        childAspectRatio: 1.6,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -350,28 +350,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return Card(
           elevation: 2,
           child: Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(8),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(item.icon, size: 32, color: item.color),
-                const SizedBox(height: 8),
+                Icon(item.icon, size: 28, color: item.color),
+                const SizedBox(height: 6),
                 Flexible(
                   child: Text(
                     item.value,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: item.color,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Flexible(
                   child: Text(
                     item.title,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w600,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -390,29 +393,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Expanded(
           child: Card(
             color: Colors.green.shade50,
+            elevation: 3,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green, size: 32),
-                  const SizedBox(height: 8),
-                  const Text('System Healthy'),
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.green.shade700,
+                    size: 28,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'System Healthy',
+                    style: TextStyle(
+                      color: Colors.green.shade800,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         Expanded(
           child: Card(
             color: Colors.blue.shade50,
+            elevation: 3,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 children: [
-                  Icon(Icons.cloud, color: Colors.blue, size: 32),
-                  const SizedBox(height: 8),
-                  const Text('All Services Up'),
+                  Icon(Icons.cloud, color: Colors.blue.shade700, size: 28),
+                  const SizedBox(height: 6),
+                  Text(
+                    'All Services Up',
+                    style: TextStyle(
+                      color: Colors.blue.shade800,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -500,7 +523,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildPriorityItem(String label, int count, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -543,9 +566,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.8,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 2.0,
           children: [
             _buildActionCard(
               'Manage Users',
@@ -592,9 +615,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.8,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 2.0,
           children: [
             _buildActionCard(
               'My Projects',
@@ -641,9 +664,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.8,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 2.0,
           children: [
             _buildActionCard(
               'Tasks',
@@ -673,18 +696,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
       elevation: 2,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 32, color: color),
-              const SizedBox(height: 8),
+              Icon(icon, size: 24, color: color),
+              const SizedBox(height: 4),
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 12,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

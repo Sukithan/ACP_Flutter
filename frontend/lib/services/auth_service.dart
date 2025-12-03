@@ -112,4 +112,13 @@ class AuthService {
       return null;
     }
   }
+
+  Future<void> updateCurrentUser(User user) async {
+    try {
+      await _storage.write(key: 'user_data', value: json.encode(user.toJson()));
+    } catch (e) {
+      print('Update user error: $e');
+      throw Exception('Failed to update user data');
+    }
+  }
 }

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/project.dart';
 import '../models/task.dart';
+import '../models/user.dart';
 
 class ApiService {
   // Change this to your Laravel backend URL
@@ -380,6 +381,40 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error deleting user: $e');
+    }
+  }
+
+  // Profile Management
+  Future<User> updateProfile(
+    String name,
+    String email,
+    String? currentPassword,
+    String? newPassword,
+  ) async {
+    try {
+      final headers = await getHeaders();
+      final Map<String, dynamic> body = {'name': name, 'email': email};
+
+      if (currentPassword != null && newPassword != null) {
+        body['current_password'] = currentPassword;
+        body['new_password'] = newPassword;
+      }
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/profile'),
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return User.fromJson(data['user']);
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(error['message'] ?? 'Failed to update profile');
+      }
+    } catch (e) {
+      throw Exception('Error updating profile: $e');
     }
   }
 
