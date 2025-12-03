@@ -1,0 +1,50 @@
+# Root-level gitignore for ACP_Flutter project
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.iml
+*.swp
+.DS_Store
+
+# Backend (Laravel) specific
+backend/vendor/
+backend/node_modules/
+backend/public/build
+backend/public/hot
+backend/public/storage
+backend/storage/*.key
+backend/.env
+backend/.env.backup
+backend/.env.production
+backend/.phpunit.result.cache
+backend/Homestead.json
+backend/Homestead.yaml
+backend/auth.json
+backend/npm-debug.log
+backend/yarn-error.log
+backend/.fleet
+
+# Frontend (Flutter) specific
+frontend/.dart_tool/
+frontend/.flutter-plugins-dependencies
+frontend/.pub-cache/
+frontend/.pub/
+frontend/build/
+frontend/coverage/
+frontend/**/.last_build_id
+frontend/*.log
+frontend/app.*.symbols
+frontend/app.*.map.json
+frontend/android/app/debug
+frontend/android/app/profile
+frontend/android/app/release
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*~
