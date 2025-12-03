@@ -92,52 +92,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildWelcomeCard(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Text(
               'Overview',
               style: Theme.of(
                 context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
-            // Overview stats grid
-            _buildStatsGrid([
-              _StatItem(
-                icon: Icons.people,
-                title: 'Users',
-                value: '${_stats?['total_users'] ?? 0}',
-                color: Colors.blue,
-              ),
-              _StatItem(
-                icon: Icons.folder,
-                title: 'Projects',
-                value: '${_stats?['total_projects'] ?? 0}',
-                color: Colors.purple,
-              ),
-              _StatItem(
-                icon: Icons.task,
-                title: 'Tasks',
-                value: '${_stats?['total_tasks'] ?? 0}',
-                color: Colors.orange,
-              ),
-              _StatItem(
-                icon: Icons.check_circle,
-                title: 'Done',
-                value: '${_stats?['completed_tasks'] ?? 0}',
-                color: Colors.green,
-              ),
-            ]),
-            const SizedBox(height: 16),
+            const SizedBox(height: 6),
+            // Overview table style
+            _buildOverviewTable(),
+            const SizedBox(height: 12),
             // System status section
             Text(
               'System Status',
               style: Theme.of(
                 context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _buildStatusCards(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             _buildQuickActionsAdmin(),
           ],
         ),
@@ -271,7 +246,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Card(
       elevation: 4,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.deepPurple.shade400, Colors.deepPurple.shade700],
@@ -283,18 +258,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Row(
           children: [
             CircleAvatar(
-              radius: 25,
+              radius: 20,
               backgroundColor: Colors.white,
               child: Text(
                 _currentUser?.name[0].toUpperCase() ?? 'U',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.deepPurple.shade700,
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -303,16 +278,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     'Welcome back,',
                     style: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                    ).textTheme.bodySmall?.copyWith(color: Colors.white70),
                   ),
                   Text(
                     _currentUser?.name ?? 'User',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Wrap(
                     spacing: 4,
                     children: (_currentUser?.roles ?? []).map((role) {
@@ -346,9 +321,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 6,
-        mainAxisSpacing: 6,
-        childAspectRatio: 1.5,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
+        childAspectRatio: 1.8,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -356,12 +331,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return Card(
           elevation: 2,
           child: Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(item.icon, size: 24, color: item.color),
-                const SizedBox(height: 6),
+                Icon(item.icon, size: 20, color: item.color),
+                const SizedBox(height: 4),
                 Flexible(
                   child: Text(
                     item.value,
@@ -402,17 +377,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: Colors.green.shade50,
               elevation: 3,
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.green.shade700,
-                      size: 24,
-                    ),
-                    const SizedBox(height: 6),
+                    Icon(Icons.cloud, color: Colors.blue.shade700, size: 20),
+                    const SizedBox(height: 4),
                     Text(
                       'System Healthy',
                       style: TextStyle(
@@ -531,6 +502,82 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildOverviewTable() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            _buildOverviewItem(
+              'Total Users',
+              _stats?['total_users'] ?? 0,
+              Colors.blue,
+              Icons.people,
+            ),
+            const Divider(),
+            _buildOverviewItem(
+              'Total Projects',
+              _stats?['total_projects'] ?? 0,
+              Colors.purple,
+              Icons.folder,
+            ),
+            const Divider(),
+            _buildOverviewItem(
+              'Total Tasks',
+              _stats?['total_tasks'] ?? 0,
+              Colors.orange,
+              Icons.task,
+            ),
+            const Divider(),
+            _buildOverviewItem(
+              'Completed Tasks',
+              _stats?['completed_tasks'] ?? 0,
+              Colors.green,
+              Icons.check_circle,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOverviewItem(
+    String label,
+    int count,
+    Color color,
+    IconData icon,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 20),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }
