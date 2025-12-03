@@ -10,6 +10,7 @@ import 'screens/admin/users_screen.dart';
 import 'screens/admin/health_screen.dart';
 import 'screens/admin/logs_screen.dart';
 import 'services/auth_service.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,29 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'ACP Project',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.deepPurple,
-          foregroundColor: Colors.white,
-          elevation: 2,
-          centerTitle: false,
-          iconTheme: const IconThemeData(color: Colors.white),
-          actionsIconTheme: const IconThemeData(color: Colors.white),
-        ),
-        cardTheme: CardThemeData(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          filled: true,
-          fillColor: Colors.grey.shade50,
-        ),
-      ),
+      theme: AppTheme.lightTheme,
       initialRoute: '/',
       onGenerateRoute: (settings) {
         switch (settings.name) {

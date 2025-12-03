@@ -274,7 +274,3 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
     );
   }
 }
-void _logError(String message, dynamic error) {
-  debugPrint('ProjectDetailScreen Error: $message');
-  debugPrint('Error details: $error');
-}
