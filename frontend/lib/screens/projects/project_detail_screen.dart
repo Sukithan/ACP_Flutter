@@ -132,6 +132,10 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                                         ?.replaceAll('-', ' ')
                                         .toUpperCase() ??
                                     'UNKNOWN',
+                                style: const TextStyle(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                               backgroundColor: _getStatusColor(
                                 _projectData!['status'] ?? '',
@@ -227,6 +231,8 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                                               task.statusDisplay,
                                               style: const TextStyle(
                                                 fontSize: 10,
+                                                color: Colors.black87,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
                                             padding: EdgeInsets.zero,
@@ -242,6 +248,8 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                                               task.assignedToName!,
                                               style: const TextStyle(
                                                 fontSize: 12,
+                                                color: Colors.black87,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                           ],

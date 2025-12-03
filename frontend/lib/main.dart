@@ -6,6 +6,8 @@ import 'screens/projects/project_detail_screen.dart';
 import 'screens/projects/create_project_screen.dart';
 import 'screens/tasks/task_detail_screen.dart';
 import 'screens/tasks/create_task_screen.dart';
+import 'screens/tasks/tasks_screen.dart';
+import 'screens/projects/projects_screen.dart';
 import 'screens/admin/users_screen.dart';
 import 'screens/admin/health_screen.dart';
 import 'screens/admin/logs_screen.dart';
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
 
           // Project Routes
           case '/projects':
-            return MaterialPageRoute(builder: (_) => const HomeScreen());
+            return MaterialPageRoute(builder: (_) => const ProjectsScreen());
           case '/project-detail':
             final projectId = settings.arguments as String;
             return MaterialPageRoute(
@@ -53,7 +55,7 @@ class MyApp extends StatelessWidget {
 
           // Task Routes
           case '/tasks':
-            return MaterialPageRoute(builder: (_) => const HomeScreen());
+            return MaterialPageRoute(builder: (_) => const TasksScreen());
           case '/task-detail':
             final args = settings.arguments as Map<String, String>;
             return MaterialPageRoute(
@@ -75,6 +77,10 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const HealthScreen());
           case '/admin/logs':
             return MaterialPageRoute(builder: (_) => const LogsScreen());
+
+          // Team Routes (redirect to users for now)
+          case '/team':
+            return MaterialPageRoute(builder: (_) => const UsersScreen());
 
           // Profile Routes
           case '/profile/edit':

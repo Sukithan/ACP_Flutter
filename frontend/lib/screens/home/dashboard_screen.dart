@@ -644,10 +644,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               () => Navigator.pushNamed(context, '/admin/health'),
             ),
             _buildActionCard(
-              'View Logs',
-              Icons.article,
+              'All Tasks',
+              Icons.task,
               Colors.orange,
-              () => Navigator.pushNamed(context, '/admin/logs'),
+              () => Navigator.pushNamed(context, '/tasks'),
             ),
             _buildActionCard(
               'All Projects',

@@ -190,9 +190,16 @@ class TaskController extends Controller
                 $taskData['assigned_to_name'] = $user ? $user->name : 'Unknown User';
             }
 
+            // Get created by user name
+            if (isset($taskData['created_by'])) {
+                $createdByUser = User::find($taskData['created_by']);
+                $taskData['created_by_name'] = $createdByUser ? $createdByUser->name : 'Unknown User';
+            }
+
             // Get project details
             $firestoreProject = $this->firestoreService->getProject($projectId);
             $projectData = $firestoreProject->exists() ? $firestoreProject->data() : null;
+            $taskData['project_name'] = $projectData ? ($projectData['name'] ?? 'Unknown Project') : 'Unknown Project';
 
             if (request()->expectsJson()) {
                 return response()->json([

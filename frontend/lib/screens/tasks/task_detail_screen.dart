@@ -238,6 +238,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                     ?.replaceAll('-', ' ')
                                     .toUpperCase() ??
                                 'PENDING',
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           backgroundColor: _getStatusColor(
                             _taskData!['status'] ?? '',
@@ -253,6 +257,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                           ),
                           label: Text(
                             '${(_taskData!['priority'] as String?)?.toUpperCase() ?? 'MEDIUM'} PRIORITY',
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           backgroundColor: _getPriorityColor(
                             _taskData!['priority'] ?? '',
@@ -406,8 +414,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       style: ElevatedButton.styleFrom(
         backgroundColor: isCurrentStatus
             ? _getStatusColor(status)
-            : _getStatusColor(status).withOpacity(0.2),
+            : _getStatusColor(status).withOpacity(0.1),
         foregroundColor: isCurrentStatus ? Colors.white : Colors.black87,
+        elevation: isCurrentStatus ? 2 : 1,
       ),
     );
   }
