@@ -218,7 +218,11 @@ class _UsersScreenState extends State<UsersScreen> {
                               return Chip(
                                 label: Text(
                                   role.toUpperCase(),
-                                  style: const TextStyle(fontSize: 10),
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 backgroundColor: _getRoleColor(
                                   role,

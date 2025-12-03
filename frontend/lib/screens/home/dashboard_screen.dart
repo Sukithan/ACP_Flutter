@@ -100,33 +100,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
+            // Overview stats grid
             _buildStatsGrid([
               _StatItem(
                 icon: Icons.people,
-                title: 'Total Users',
+                title: 'Users',
                 value: '${_stats?['total_users'] ?? 0}',
                 color: Colors.blue,
               ),
               _StatItem(
                 icon: Icons.folder,
-                title: 'Total Projects',
+                title: 'Projects',
                 value: '${_stats?['total_projects'] ?? 0}',
                 color: Colors.purple,
               ),
               _StatItem(
                 icon: Icons.task,
-                title: 'Total Tasks',
+                title: 'Tasks',
                 value: '${_stats?['total_tasks'] ?? 0}',
                 color: Colors.orange,
               ),
               _StatItem(
                 icon: Icons.check_circle,
-                title: 'Completed Tasks',
+                title: 'Done',
                 value: '${_stats?['completed_tasks'] ?? 0}',
                 color: Colors.green,
               ),
             ]),
             const SizedBox(height: 16),
+            // System status section
             Text(
               'System Status',
               style: Theme.of(
@@ -317,7 +319,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       return Chip(
                         label: Text(
                           role.toUpperCase(),
-                          style: const TextStyle(fontSize: 10),
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple.shade700,
+                          ),
                         ),
                         backgroundColor: Colors.white,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -342,7 +348,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         crossAxisCount: 2,
         crossAxisSpacing: 6,
         mainAxisSpacing: 6,
-        childAspectRatio: 1.6,
+        childAspectRatio: 1.5,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -350,23 +356,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return Card(
           elevation: 2,
           child: Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(item.icon, size: 28, color: item.color),
+                Icon(item.icon, size: 24, color: item.color),
                 const SizedBox(height: 6),
                 Flexible(
                   child: Text(
                     item.value,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: item.color,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Flexible(
                   child: Text(
                     item.title,
@@ -388,60 +394,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildStatusCards() {
-    return Row(
-      children: [
-        Expanded(
-          child: Card(
-            color: Colors.green.shade50,
-            elevation: 3,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Colors.green.shade700,
-                    size: 28,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'System Healthy',
-                    style: TextStyle(
-                      color: Colors.green.shade800,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
+    return IntrinsicHeight(
+      child: Row(
+        children: [
+          Expanded(
+            child: Card(
+              color: Colors.green.shade50,
+              elevation: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green.shade700,
+                      size: 24,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 6),
+                    Text(
+                      'System Healthy',
+                      style: TextStyle(
+                        color: Colors.green.shade800,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Card(
-            color: Colors.blue.shade50,
-            elevation: 3,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  Icon(Icons.cloud, color: Colors.blue.shade700, size: 28),
-                  const SizedBox(height: 6),
-                  Text(
-                    'All Services Up',
-                    style: TextStyle(
-                      color: Colors.blue.shade800,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Card(
+              color: Colors.blue.shade50,
+              elevation: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.cloud, color: Colors.blue.shade700, size: 24),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Services Up',
+                      style: TextStyle(
+                        color: Colors.blue.shade800,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
