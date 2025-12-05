@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/task.dart';
 import '../../services/api_service.dart';
+import '../../services/websocket_service.dart';
+import 'dart:developer';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -12,6 +14,7 @@ class TasksScreen extends StatefulWidget {
 class _TasksScreenState extends State<TasksScreen> {
   final _apiService = ApiService();
   final _searchController = TextEditingController();
+  final _webSocketService = WebSocketService();
 
   List<Task> _allTasks = [];
   List<Task> _filteredTasks = [];
@@ -25,11 +28,104 @@ class _TasksScreenState extends State<TasksScreen> {
   void initState() {
     super.initState();
     _loadTasks();
+    _initializeRealTimeUpdates();
+  }
+
+  Future<void> _initializeRealTimeUpdates() async {
+    try {
+      await _webSocketService.initialize();
+
+      // Subscribe to task updates
+      await _webSocketService.subscribeToTaskUpdates((data) {
+        log('Task update received: $data');
+        if (mounted) {
+          _handleTaskUpdate(data);
+        }
+      });
+    } catch (e) {
+      log('Failed to initialize real-time task updates: $e');
+    }
+  }
+
+  void _handleTaskUpdate(dynamic data) {
+    if (data == null) return;
+
+    final action = data['action'] as String?;
+    final taskData = data['task'] as Map<String, dynamic>?;
+
+    if (taskData == null) return;
+
+    setState(() {
+      switch (action) {
+        case 'created':
+          final newTask = Task.fromJson(taskData);
+          _allTasks.add(newTask);
+          break;
+        case 'updated':
+        case 'status_changed':
+          final updatedTask = Task.fromJson(taskData);
+          final index = _allTasks.indexWhere((t) => t.id == updatedTask.id);
+          if (index != -1) {
+            _allTasks[index] = updatedTask;
+          }
+          break;
+        case 'deleted':
+          _allTasks.removeWhere((t) => t.id == taskData['id']);
+          break;
+      }
+      _applyFilters();
+    });
+
+    // Show notification
+    _showTaskUpdateNotification(action, taskData['title']);
+  }
+
+  void _showTaskUpdateNotification(String? action, String? taskTitle) {
+    if (action == null || taskTitle == null) return;
+
+    String message;
+    Color color;
+    switch (action) {
+      case 'created':
+        message = 'New task "$taskTitle" created';
+        color = Colors.green;
+        break;
+      case 'updated':
+        message = 'Task "$taskTitle" updated';
+        color = Colors.blue;
+        break;
+      case 'status_changed':
+        message = 'Task "$taskTitle" status changed';
+        color = Colors.orange;
+        break;
+      case 'deleted':
+        message = 'Task "$taskTitle" deleted';
+        color = Colors.red;
+        break;
+      default:
+        message = 'Task "$taskTitle" changed';
+        color = Colors.grey;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.sync, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: color,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _webSocketService.disconnect();
     super.dispose();
   }
 

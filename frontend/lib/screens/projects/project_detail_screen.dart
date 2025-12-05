@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
+import '../../services/websocket_service.dart';
 import '../../models/task.dart';
+import 'dart:developer';
 
 class ProjectDetailScreen extends StatefulWidget {
   final String projectId;
@@ -13,6 +15,7 @@ class ProjectDetailScreen extends StatefulWidget {
 
 class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
   final _apiService = ApiService();
+  final _webSocketService = WebSocketService();
   Map<String, dynamic>? _projectData;
   bool _isLoading = true;
   String? _error;
@@ -21,6 +24,124 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
   void initState() {
     super.initState();
     _loadProject();
+    _initializeProjectRealTimeUpdates();
+  }
+
+  Future<void> _initializeProjectRealTimeUpdates() async {
+    try {
+      await _webSocketService.initialize();
+
+      // Subscribe to this specific project's task updates
+      await _webSocketService.subscribeToProjectTaskUpdates(widget.projectId, (
+        data,
+      ) {
+        log('Project task update received: $data');
+        if (mounted) {
+          _handleProjectTaskUpdate(data);
+        }
+      });
+
+      // Subscribe to project updates
+      await _webSocketService.subscribeToProjectUpdates((data) {
+        log('Project update received: $data');
+        if (mounted && data['project']?['id'] == widget.projectId) {
+          _handleProjectUpdate(data);
+        }
+      });
+    } catch (e) {
+      log('Failed to initialize project real-time updates: $e');
+    }
+  }
+
+  void _handleProjectTaskUpdate(dynamic data) {
+    if (data == null || data['project_id'] != widget.projectId) return;
+
+    // Reload project to get updated task list
+    _loadProject();
+
+    final action = data['action'] as String?;
+    final taskTitle = data['task']?['title'] as String?;
+
+    if (action != null && taskTitle != null) {
+      _showTaskUpdateNotification(action, taskTitle);
+    }
+  }
+
+  void _handleProjectUpdate(dynamic data) {
+    if (data == null) return;
+
+    final action = data['action'] as String?;
+    final projectData = data['project'] as Map<String, dynamic>?;
+
+    if (projectData != null && projectData['id'] == widget.projectId) {
+      // Update project data
+      setState(() {
+        _projectData = {...?_projectData, ...projectData};
+      });
+
+      if (action != null) {
+        _showProjectUpdateNotification(action);
+      }
+    }
+  }
+
+  void _showTaskUpdateNotification(String action, String taskTitle) {
+    String message;
+    switch (action) {
+      case 'created':
+        message = 'New task "$taskTitle" added to this project';
+        break;
+      case 'updated':
+        message = 'Task "$taskTitle" was updated';
+        break;
+      case 'status_changed':
+        message = 'Task "$taskTitle" status changed';
+        break;
+      case 'deleted':
+        message = 'Task "$taskTitle" was deleted';
+        break;
+      default:
+        message = 'Task "$taskTitle" was modified';
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.task_alt, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.blue,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  void _showProjectUpdateNotification(String action) {
+    String message;
+    switch (action) {
+      case 'updated':
+        message = 'This project was updated';
+        break;
+      default:
+        message = 'This project was modified';
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.sync, color: Colors.white),
+            const SizedBox(width: 8),
+            Text(message),
+          ],
+        ),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _loadProject() async {

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\FirestoreService;
+use App\Events\TaskUpdated;
+use App\Events\UserActivity;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Kreait\Firebase\Exception\FirebaseException;
@@ -168,11 +170,16 @@ class TaskController extends Controller
 
             // Store in Firestore
             $firestoreDoc = $this->firestoreService->createTask($projectId, $taskData);
+            $task = array_merge($taskData, ['id' => $firestoreDoc->id(), 'project_id' => $projectId]);
+
+            // Broadcast task creation event
+            broadcast(new TaskUpdated($task, $projectId, 'created', Auth::id()));
+            broadcast(new UserActivity(Auth::user(), 'created_task', ['task_title' => $task['title']]));
 
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Task created successfully',
-                    'task' => array_merge($taskData, ['id' => $firestoreDoc->id()])
+                    'task' => $task
                 ], 201);
             }
 
@@ -302,6 +309,14 @@ class TaskController extends Controller
 
             // Update in Firestore
             $this->firestoreService->updateTask($projectId, $taskId, $updateData);
+            
+            // Get updated task data for broadcasting
+            $updatedTask = array_merge($currentData, $updateData, ['id' => $taskId, 'project_id' => $projectId]);
+            $action = isset($updateData['status']) && $updateData['status'] !== $currentData['status'] ? 'status_changed' : 'updated';
+
+            // Broadcast task update event
+            broadcast(new TaskUpdated($updatedTask, $projectId, $action, Auth::id()));
+            broadcast(new UserActivity(Auth::user(), 'updated_task', ['task_title' => $updatedTask['title']]));
 
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Task updated successfully']);

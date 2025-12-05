@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\User;
 use App\Services\FirestoreService;
+use App\Events\ProjectUpdated;
+use App\Events\UserActivity;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Kreait\Firebase\Exception\FirebaseException;
@@ -130,11 +132,16 @@ class ProjectController extends Controller
 
             // Store in Firestore
             $firestoreDoc = $this->firestoreService->createProject($projectData);
+            $project = array_merge($projectData, ['id' => $firestoreDoc->id()]);
+
+            // Broadcast project creation event
+            broadcast(new ProjectUpdated($project, 'created', Auth::id()));
+            broadcast(new UserActivity(Auth::user(), 'created_project', ['project_name' => $project['name']]));
 
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Project created successfully',
-                    'project' => array_merge($projectData, ['id' => $firestoreDoc->id()])
+                    'project' => $project
                 ], 201);
             }
 
@@ -294,6 +301,13 @@ class ProjectController extends Controller
 
             // Update in Firestore
             $this->firestoreService->updateProject($id, $updateData);
+            
+            // Get updated project data for broadcasting
+            $updatedProject = array_merge($currentData, $updateData, ['id' => $id]);
+
+            // Broadcast project update event
+            broadcast(new ProjectUpdated($updatedProject, 'updated', Auth::id()));
+            broadcast(new UserActivity(Auth::user(), 'updated_project', ['project_name' => $updatedProject['name']]));
 
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Project updated successfully']);

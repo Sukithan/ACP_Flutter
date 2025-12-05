@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/project.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/websocket_service.dart';
+import 'dart:developer';
 
 class ProjectsScreen extends StatefulWidget {
   const ProjectsScreen({super.key});
@@ -14,6 +16,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   final _apiService = ApiService();
   final _authService = AuthService();
   final _searchController = TextEditingController();
+  final _webSocketService = WebSocketService();
 
   List<Project> _allProjects = [];
   List<Project> _filteredProjects = [];
@@ -29,6 +32,119 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     super.initState();
     _loadProjects();
     _checkPermissions();
+    _initializeRealTimeUpdates();
+  }
+
+  Future<void> _initializeRealTimeUpdates() async {
+    try {
+      await _webSocketService.initialize();
+
+      // Subscribe to project updates
+      await _webSocketService.subscribeToProjectUpdates((data) {
+        log('Project update received: $data');
+        if (mounted) {
+          _handleProjectUpdate(data);
+        }
+      });
+
+      // Subscribe to personal notifications
+      await _webSocketService.subscribeToPersonalNotifications((data) {
+        log('Personal notification received: $data');
+        if (mounted) {
+          _showRealTimeNotification(data);
+        }
+      });
+    } catch (e) {
+      log('Failed to initialize real-time updates: $e');
+    }
+  }
+
+  void _handleProjectUpdate(dynamic data) {
+    if (data == null) return;
+
+    final action = data['action'] as String?;
+    final projectData = data['project'] as Map<String, dynamic>?;
+
+    if (projectData == null) return;
+
+    setState(() {
+      switch (action) {
+        case 'created':
+          final newProject = Project.fromJson(projectData);
+          _allProjects.add(newProject);
+          break;
+        case 'updated':
+          final updatedProject = Project.fromJson(projectData);
+          final index = _allProjects.indexWhere(
+            (p) => p.id == updatedProject.id,
+          );
+          if (index != -1) {
+            _allProjects[index] = updatedProject;
+          }
+          break;
+        case 'deleted':
+          _allProjects.removeWhere((p) => p.id == projectData['id']);
+          break;
+      }
+      _applyFilters();
+    });
+
+    // Show notification for updates from other users
+    final currentUserId = data['user_id'];
+    // You'd need to get the current user ID to compare
+    if (currentUserId != null) {
+      _showUpdateNotification(action, projectData['name']);
+    }
+  }
+
+  void _showRealTimeNotification(dynamic data) {
+    if (data == null) return;
+
+    final action = data['action'] as String?;
+    final projectName = data['project']?['name'] as String?;
+
+    if (action != null && projectName != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Project "$projectName" was $action'),
+          backgroundColor: Colors.blue,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  void _showUpdateNotification(String? action, String? projectName) {
+    if (action == null || projectName == null) return;
+
+    String message;
+    switch (action) {
+      case 'created':
+        message = 'New project "$projectName" created';
+        break;
+      case 'updated':
+        message = 'Project "$projectName" updated';
+        break;
+      case 'deleted':
+        message = 'Project "$projectName" deleted';
+        break;
+      default:
+        message = 'Project "$projectName" changed';
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.sync, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 4),
+      ),
+    );
   }
 
   Future<void> _checkPermissions() async {
@@ -45,6 +161,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _webSocketService.disconnect();
     super.dispose();
   }
 
