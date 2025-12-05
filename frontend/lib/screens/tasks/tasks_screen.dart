@@ -202,11 +202,22 @@ class _TasksScreenState extends State<TasksScreen> {
   Widget _buildFilterChip(String label, String value) {
     final isSelected = _selectedFilter == value;
     return FilterChip(
-      label: Text(label),
+      label: Text(
+        label,
+        style: TextStyle(
+          color: isSelected ? Colors.white : Colors.deepPurple.shade700,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
       selected: isSelected,
       onSelected: (_) => _onFilterChanged(value),
-      selectedColor: Colors.deepPurple.shade100,
-      checkmarkColor: Colors.deepPurple.shade700,
+      selectedColor: Colors.deepPurple.shade600,
+      backgroundColor: Colors.grey.shade100,
+      checkmarkColor: Colors.white,
+      side: BorderSide(
+        color: isSelected ? Colors.deepPurple.shade600 : Colors.grey.shade300,
+        width: 1,
+      ),
     );
   }
 
