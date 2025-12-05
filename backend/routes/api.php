@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\TeamController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,6 +94,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/managers', [UserController::class, 'getManagers']);
     Route::get('/users/employees', [UserController::class, 'getEmployees']);
     Route::get('/users/all', [UserController::class, 'getAllUsers'])->middleware('role:admin');
+    
+    // Team Members
+    Route::get('/team/members', [TeamController::class, 'getTeamMembers']);
     
     // Projects
     Route::get('/projects', [ProjectController::class, 'index']);

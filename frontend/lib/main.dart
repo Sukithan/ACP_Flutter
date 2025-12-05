@@ -11,6 +11,7 @@ import 'screens/projects/projects_screen.dart';
 import 'screens/admin/users_screen.dart';
 import 'screens/admin/health_screen.dart';
 import 'screens/admin/logs_screen.dart';
+import 'screens/team/team_members_screen.dart';
 import 'screens/profile/profile_edit_screen.dart';
 import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
@@ -78,9 +79,9 @@ class MyApp extends StatelessWidget {
           case '/admin/logs':
             return MaterialPageRoute(builder: (_) => const LogsScreen());
 
-          // Team Routes (redirect to users for now)
+          // Team Routes
           case '/team':
-            return MaterialPageRoute(builder: (_) => const UsersScreen());
+            return MaterialPageRoute(builder: (_) => const TeamMembersScreen());
 
           // Profile Routes
           case '/profile/edit':

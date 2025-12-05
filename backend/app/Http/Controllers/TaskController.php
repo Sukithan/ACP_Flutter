@@ -28,12 +28,41 @@ class TaskController extends Controller
         $this->authorize('viewAny', Task::class);
 
         try {
-            if (Auth::user()->hasRole('employee')) {
+            $user = Auth::user();
+            $tasks = [];
+            
+            if ($user->hasRole('employee')) {
                 // Employees only see their own tasks
-                $tasks = $this->firestoreService->getTasksAssignedToUser(Auth::id());
+                $tasks = $this->firestoreService->getTasksAssignedToUser($user->id);
+            } elseif ($user->hasRole('manager')) {
+                // Managers only see tasks from their assigned projects
+                $projects = $this->firestoreService->getAllProjects();
+                
+                foreach ($projects as $project) {
+                    $projectData = $project->data();
+                    $assignedManager = $projectData['assigned_manager'] ?? null;
+                    
+                    // Only include tasks from projects this manager is assigned to
+                    if ($assignedManager && (int)$assignedManager === (int)$user->id) {
+                        $projectTasks = $this->firestoreService->getProjectTasks($project->id());
+                        foreach ($projectTasks as $taskDoc) {
+                            $taskData = $taskDoc->data();
+                            $taskData['id'] = $taskDoc->id();
+                            $taskData['project_id'] = $project->id();
+                            $taskData['project_name'] = $projectData['name'] ?? 'Unknown Project';
+                            
+                            // Get assigned user name
+                            if (isset($taskData['assigned_to'])) {
+                                $taskUser = User::find($taskData['assigned_to']);
+                                $taskData['assigned_to_name'] = $taskUser ? $taskUser->name : 'Unknown User';
+                            }
+                            
+                            $tasks[] = $taskData;
+                        }
+                    }
+                }
             } else {
-                // Admin and Managers see all tasks
-                $tasks = [];
+                // Admin sees all tasks
                 $projects = $this->firestoreService->getAllProjects();
                 
                 foreach ($projects as $project) {
@@ -46,8 +75,8 @@ class TaskController extends Controller
                         
                         // Get assigned user name
                         if (isset($taskData['assigned_to'])) {
-                            $user = User::find($taskData['assigned_to']);
-                            $taskData['assigned_to_name'] = $user ? $user->name : 'Unknown User';
+                            $taskUser = User::find($taskData['assigned_to']);
+                            $taskData['assigned_to_name'] = $taskUser ? $taskUser->name : 'Unknown User';
                         }
                         
                         $tasks[] = $taskData;

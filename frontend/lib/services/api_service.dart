@@ -500,6 +500,29 @@ class ApiService {
     }
   }
 
+  // Get team members based on user role
+  Future<Map<String, dynamic>> getTeamMembers() async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/team/members'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data.containsKey('error')) {
+          throw Exception(data['error']);
+        }
+        return data;
+      } else {
+        throw Exception('Failed to load team members: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching team members: $e');
+    }
+  }
+
   // Test database connections
   Future<Map<String, dynamic>> testDatabaseConnections() async {
     try {

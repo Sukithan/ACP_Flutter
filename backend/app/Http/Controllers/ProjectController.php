@@ -32,17 +32,16 @@ class ProjectController extends Controller
             $firestoreProjects = $this->firestoreService->getAllProjects();
             $projects = [];
             $user = Auth::user();
-            
+
             foreach ($firestoreProjects as $doc) {
                 $data = $doc->data();
                 $data['id'] = $doc->id();
-                
-                // Filter projects for employees - only show projects with tasks assigned to them
+
                 if ($user->hasRole('employee')) {
-                    // Get tasks for this project
+                    // Filter for employees: only include projects with tasks assigned to them
                     $projectTasks = $this->firestoreService->getProjectTasks($doc->id());
                     $hasAssignedTask = false;
-                    
+
                     foreach ($projectTasks as $taskDoc) {
                         $taskData = $taskDoc->data();
                         if (isset($taskData['assigned_to']) && (int)$taskData['assigned_to'] === (int)$user->id) {
@@ -50,13 +49,17 @@ class ProjectController extends Controller
                             break;
                         }
                     }
-                    
-                    // Only include project if employee has at least one task assigned
+
                     if ($hasAssignedTask) {
                         $projects[] = $data;
                     }
+                } elseif ($user->hasRole('manager')) {
+                    // Filter for managers: only include projects they manage
+                    if (isset($data['assigned_manager']) && (int)$data['assigned_manager'] === (int)$user->id) {
+                        $projects[] = $data;
+                    }
                 } else {
-                    // Admin and Manager see all projects
+                    // Admin sees all projects
                     $projects[] = $data;
                 }
             }
@@ -72,7 +75,7 @@ class ProjectController extends Controller
                 'error' => $e->getMessage(),
                 'user_id' => Auth::id()
             ]);
-            
+
             if (request()->expectsJson()) {
                 return response()->json([
                     'error' => $errorMessage, 

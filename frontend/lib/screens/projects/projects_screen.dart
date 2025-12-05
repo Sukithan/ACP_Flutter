@@ -22,11 +22,24 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   String _searchQuery = '';
   String _selectedFilter = 'all';
   bool _isSearchVisible = false;
+  bool _canCreateProjects = false;
 
   @override
   void initState() {
     super.initState();
     _loadProjects();
+    _checkPermissions();
+  }
+
+  Future<void> _checkPermissions() async {
+    final user = await _authService.getCurrentUser();
+    if (mounted) {
+      setState(() {
+        // Only admins and managers can create projects
+        _canCreateProjects =
+            user?.hasRole('admin') == true || user?.hasRole('manager') == true;
+      });
+    }
   }
 
   @override
@@ -332,17 +345,19 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.of(
-            context,
-          ).pushNamed('/create-project').then((_) => _loadProjects());
-        },
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('New Project'),
-      ),
+      floatingActionButton: _canCreateProjects
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.of(
+                  context,
+                ).pushNamed('/create-project').then((_) => _loadProjects());
+              },
+              backgroundColor: Colors.deepPurple,
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('New Project'),
+            )
+          : null,
     );
   }
 
@@ -624,7 +639,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                   foregroundColor: Colors.grey.shade700,
                 ),
               )
-            else
+            else if (_canCreateProjects)
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(

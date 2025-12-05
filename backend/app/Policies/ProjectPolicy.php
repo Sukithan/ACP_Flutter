@@ -35,7 +35,17 @@ class ProjectPolicy
             return false;
         }
         
-        // Admin can view all, Manager can view all, Employee can view projects
+        // Admin can view all projects
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+        
+        // Manager can view projects they're assigned to
+        if ($user->hasRole('manager')) {
+            return $project->assigned_manager === $user->id || $project->created_by === $user->id;
+        }
+        
+        // Employees can view projects (filtering is done in controller based on task assignments)
         return $user->hasPermissionTo('view all projects');
     }
 
